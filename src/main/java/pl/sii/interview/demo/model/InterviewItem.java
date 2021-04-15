@@ -10,7 +10,7 @@ public class InterviewItem {
     String answer;
     Integer score;
 
-    public class InterviewAnswer{
+    public static class InterviewAnswer{
         String value;
     }
 
