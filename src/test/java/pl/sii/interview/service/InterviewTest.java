@@ -3,9 +3,8 @@ package pl.sii.interview.service;
 import org.junit.jupiter.api.Test;
 import pl.sii.interview.demo.model.InterviewItem;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
@@ -46,6 +45,11 @@ class InterviewTest {
            - the answer property contains 'y' character
            - the question property ends with a single '?' character and
         */
+        resultList = Arrays.stream(interviewItemsArray)
+                .filter(interviewItem -> interviewItem.getAnswer() != null && interviewItem.getQuestion() != null)
+                .filter(interviewItem -> interviewItem.getAnswer().contains("y"))
+                .filter(interviewItem -> this.endsWithSingleQuestionMark(interviewItem.getQuestion()))
+                .collect(Collectors.toList());
 
         assertThat(resultList).hasSize(3);
         assertThat(resultList).contains(InterviewItem.builder().question("Abc ?").answer("Xyz").build());
@@ -61,6 +65,9 @@ class InterviewTest {
            - questions should be unique
            - answers to the questions should be unique
         */
+        resultMap = Arrays.stream(interviewItemsArray)
+                .collect(Collectors.groupingBy(InterviewItem::getQuestion,
+                        Collectors.mapping(InterviewItem::getAnswer, Collectors.toSet())));
 
         assertThat(resultMap).hasSize(3);
         assertThat(resultMap).containsKeys("Abc ?", "Abc ??", "Is this real?");
@@ -73,6 +80,13 @@ class InterviewTest {
         assertThat(resultMap.get("Is this real?"))
                 .hasSize(2)
                 .contains("Maybe Yes", "Maybe No");
+    }
+
+    private boolean endsWithSingleQuestionMark(String s) {
+        return Optional.ofNullable(s)
+                .filter(s1 -> s1.endsWith("?"))
+                .filter(s1 -> !s1.endsWith("??"))
+                .isPresent();
     }
 
 }
